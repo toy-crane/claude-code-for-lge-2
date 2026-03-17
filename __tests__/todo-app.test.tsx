@@ -103,6 +103,49 @@ describe("TodoApp", () => {
       expect(texts).toEqual(["세 번째", "두 번째", "첫 번째"])
     })
 
+    it("마감일순 선택 시 가까운 마감일부터 표시", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      const dateInput = screen.getByLabelText("마감일")
+
+      await user.type(dateInput, "2026-03-25")
+      await addTodo(user, "늦은 마감")
+
+      await user.type(dateInput, "2026-03-18")
+      await addTodo(user, "빠른 마감")
+
+      await user.type(dateInput, "2026-03-22")
+      await addTodo(user, "중간 마감")
+
+      await user.click(screen.getByRole("button", { name: "마감일순" }))
+
+      const items = screen.getAllByRole("checkbox")
+      const texts = items.map((_, i) =>
+        items[i].closest("div")?.querySelector("span.flex-1")?.textContent
+      )
+      expect(texts).toEqual(["빠른 마감", "중간 마감", "늦은 마감"])
+    })
+
+    it("마감일 없는 항목은 맨 뒤에 표시", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      await addTodo(user, "마감일 없음")
+
+      const dateInput = screen.getByLabelText("마감일")
+      await user.type(dateInput, "2026-03-20")
+      await addTodo(user, "마감일 있음")
+
+      await user.click(screen.getByRole("button", { name: "마감일순" }))
+
+      const items = screen.getAllByRole("checkbox")
+      const texts = items.map((_, i) =>
+        items[i].closest("div")?.querySelector("span.flex-1")?.textContent
+      )
+      expect(texts).toEqual(["마감일 있음", "마감일 없음"])
+    })
+
     it("현재 정렬 기준이 버튼에 표시됨", async () => {
       const user = userEvent.setup()
       render(<TodoApp />)

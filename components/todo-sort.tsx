@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 
-export type Sort = "createdAt" | "name"
+export type Sort = "createdAt" | "name" | "dueDate"
 
 type Props = {
   current: Sort
@@ -10,6 +10,7 @@ type Props = {
 const sorts: { value: Sort; label: string }[] = [
   { value: "createdAt", label: "최신순" },
   { value: "name", label: "이름순" },
+  { value: "dueDate", label: "마감일순" },
 ]
 
 export function TodoSort({ current, onChange }: Props) {
