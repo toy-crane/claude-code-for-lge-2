@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 
 export type Priority = "high" | "normal" | "low"
+export type Category = "업무" | "개인" | "쇼핑"
 
 export type Todo = {
   id: string
@@ -11,6 +12,7 @@ export type Todo = {
   priority: Priority
   createdAt: number
   dueDate?: string
+  category?: Category
 }
 
 const STORAGE_KEY = "todos"
@@ -32,7 +34,7 @@ export function useTodos() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
   }, [todos, isLoaded])
 
-  function addTodo(text: string, priority: Priority = "normal", dueDate?: string) {
+  function addTodo(text: string, priority: Priority = "normal", dueDate?: string, category?: Category) {
     const todo: Todo = {
       id: crypto.randomUUID(),
       text,
@@ -40,6 +42,7 @@ export function useTodos() {
       priority,
       createdAt: Date.now(),
       dueDate: dueDate || undefined,
+      category: category || undefined,
     }
     setTodos((prev) => [todo, ...prev])
   }

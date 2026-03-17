@@ -72,6 +72,11 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: Props) {
           {todo.text}
         </span>
       )}
+      {todo.category && (
+        <span className="shrink-0 rounded bg-purple-100 px-1.5 py-0.5 text-xs text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+          {todo.category}
+        </span>
+      )}
       {todo.dueDate && (
         <span className="shrink-0 text-xs text-muted-foreground">
           {todo.dueDate}

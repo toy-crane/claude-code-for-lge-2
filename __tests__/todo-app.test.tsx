@@ -199,6 +199,20 @@ describe("TodoApp", () => {
     })
   })
 
+  describe("카테고리 태그", () => {
+    it("'업무' 태그 지정 후 저장 시 목록에 태그 표시", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      await user.click(screen.getByRole("button", { name: "업무" }))
+      await addTodo(user, "보고서 작성")
+
+      expect(screen.getByText("보고서 작성")).toBeInTheDocument()
+      const badges = screen.getAllByText("업무")
+      expect(badges.length).toBeGreaterThanOrEqual(2)
+    })
+  })
+
   describe("필터링", () => {
     it("'전체' 필터 선택 시 5개 모두 표시", async () => {
       const user = userEvent.setup()
