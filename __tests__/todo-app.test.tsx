@@ -68,6 +68,58 @@ describe("TodoApp", () => {
     })
   })
 
+  describe("정렬", () => {
+    it("이름순 선택 시 가나다순 정렬", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      await addTodo(user, "다라마")
+      await addTodo(user, "가나다")
+      await addTodo(user, "바사아")
+
+      await user.click(screen.getByRole("button", { name: "이름순" }))
+
+      const items = screen.getAllByRole("checkbox")
+      const texts = items.map((_, i) =>
+        items[i].closest("div")?.querySelector("span.flex-1")?.textContent
+      )
+      expect(texts).toEqual(["가나다", "다라마", "바사아"])
+    })
+
+    it("최신순 선택 시 최근 추가 순 정렬", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      await addTodo(user, "첫 번째")
+      await addTodo(user, "두 번째")
+      await addTodo(user, "세 번째")
+
+      await user.click(screen.getByRole("button", { name: "최신순" }))
+
+      const items = screen.getAllByRole("checkbox")
+      const texts = items.map((_, i) =>
+        items[i].closest("div")?.querySelector("span.flex-1")?.textContent
+      )
+      expect(texts).toEqual(["세 번째", "두 번째", "첫 번째"])
+    })
+
+    it("현재 정렬 기준이 버튼에 표시됨", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      const latestBtn = screen.getByRole("button", { name: "최신순" })
+      const nameBtn = screen.getByRole("button", { name: "이름순" })
+
+      expect(latestBtn).toHaveAttribute("data-variant", "default")
+      expect(nameBtn).toHaveAttribute("data-variant", "outline")
+
+      await user.click(nameBtn)
+
+      expect(latestBtn).toHaveAttribute("data-variant", "outline")
+      expect(nameBtn).toHaveAttribute("data-variant", "default")
+    })
+  })
+
   describe("필터링", () => {
     it("'전체' 필터 선택 시 5개 모두 표시", async () => {
       const user = userEvent.setup()
