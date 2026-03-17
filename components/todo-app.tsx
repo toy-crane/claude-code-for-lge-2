@@ -5,11 +5,13 @@ import { useTodos } from "@/hooks/use-todos"
 import { TodoInput } from "@/components/todo-input"
 import { TodoList } from "@/components/todo-list"
 import { TodoFilter, type Filter } from "@/components/todo-filter"
+import { TodoSort, type Sort } from "@/components/todo-sort"
 
 export function TodoApp() {
   const { todos, isLoaded, addTodo, toggleTodo, deleteTodo, editTodo } =
     useTodos()
   const [filter, setFilter] = useState<Filter>("all")
+  const [sort, setSort] = useState<Sort>("createdAt")
 
   if (!isLoaded) {
     return (
@@ -19,11 +21,16 @@ export function TodoApp() {
     )
   }
 
-  const filteredTodos = todos.filter((todo) => {
-    if (filter === "active") return !todo.completed
-    if (filter === "completed") return todo.completed
-    return true
-  })
+  const filteredTodos = todos
+    .filter((todo) => {
+      if (filter === "active") return !todo.completed
+      if (filter === "completed") return todo.completed
+      return true
+    })
+    .sort((a, b) => {
+      if (sort === "name") return a.text.localeCompare(b.text, "ko")
+      return b.createdAt - a.createdAt
+    })
 
   const emptyMessage =
     todos.length === 0 ? "할 일을 추가해보세요" : "할 일이 없습니다"
@@ -31,7 +38,10 @@ export function TodoApp() {
   return (
     <div className="flex flex-col gap-4">
       <TodoInput onAdd={addTodo} />
-      <TodoFilter current={filter} onChange={setFilter} />
+      <div className="flex gap-4">
+        <TodoFilter current={filter} onChange={setFilter} />
+        <TodoSort current={sort} onChange={setSort} />
+      </div>
       <TodoList
         todos={filteredTodos}
         emptyMessage={emptyMessage}
