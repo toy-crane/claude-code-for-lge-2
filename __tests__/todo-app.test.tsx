@@ -43,6 +43,31 @@ describe("TodoApp", () => {
     expect(screen.getByText("할 일을 추가해보세요")).toBeInTheDocument()
   })
 
+  describe("마감일 설정", () => {
+    it("마감일 없이 할 일 추가 시 정상 추가, 마감일 칸 비어 있음", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      await addTodo(user, "마감일 없는 할 일")
+
+      expect(screen.getByText("마감일 없는 할 일")).toBeInTheDocument()
+      expect(screen.queryByText(/\d{4}-\d{2}-\d{2}/)).not.toBeInTheDocument()
+    })
+
+    it("마감일 있는 할 일 추가 시 목록에 마감일 표시", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      const dateInput = screen.getByLabelText("마감일")
+      await user.type(dateInput, "2026-03-20")
+
+      await addTodo(user, "마감일 있는 할 일")
+
+      expect(screen.getByText("마감일 있는 할 일")).toBeInTheDocument()
+      expect(screen.getByText("2026-03-20")).toBeInTheDocument()
+    })
+  })
+
   describe("필터링", () => {
     it("'전체' 필터 선택 시 5개 모두 표시", async () => {
       const user = userEvent.setup()

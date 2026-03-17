@@ -10,6 +10,7 @@ export type Todo = {
   completed: boolean
   priority: Priority
   createdAt: number
+  dueDate?: string
 }
 
 const STORAGE_KEY = "todos"
@@ -31,13 +32,14 @@ export function useTodos() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
   }, [todos, isLoaded])
 
-  function addTodo(text: string, priority: Priority = "normal") {
+  function addTodo(text: string, priority: Priority = "normal", dueDate?: string) {
     const todo: Todo = {
       id: crypto.randomUUID(),
       text,
       completed: false,
       priority,
       createdAt: Date.now(),
+      dueDate: dueDate || undefined,
     }
     setTodos((prev) => [todo, ...prev])
   }

@@ -72,6 +72,11 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: Props) {
           {todo.text}
         </span>
       )}
+      {todo.dueDate && (
+        <span className="shrink-0 text-xs text-muted-foreground">
+          {todo.dueDate}
+        </span>
+      )}
       <span
         className={`shrink-0 rounded px-1.5 py-0.5 text-xs ${PRIORITY_BADGE[todo.priority ?? "normal"].style}`}
       >
