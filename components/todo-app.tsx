@@ -8,6 +8,7 @@ import { TodoFilter, type Filter } from "@/components/todo-filter"
 import { TodoSort, type Sort } from "@/components/todo-sort"
 import { TodoSearch } from "@/components/todo-search"
 import { TodoCategoryFilter, type CategoryFilter } from "@/components/todo-category-filter"
+import { sortTodos } from "@/lib/todo-store"
 
 export function TodoApp() {
   const { todos, isLoaded, addTodo, toggleTodo, deleteTodo, editTodo } =
@@ -25,24 +26,16 @@ export function TodoApp() {
     )
   }
 
-  const filteredTodos = todos
-    .filter((todo) => {
+  const filteredTodos = sortTodos(
+    todos.filter((todo) => {
       if (search && !todo.text.includes(search)) return false
       if (categoryFilter !== "all" && todo.category !== categoryFilter) return false
       if (filter === "active") return !todo.completed
       if (filter === "completed") return todo.completed
       return true
-    })
-    .sort((a, b) => {
-      if (sort === "name") return a.text.localeCompare(b.text, "ko")
-      if (sort === "dueDate") {
-        if (!a.dueDate && !b.dueDate) return 0
-        if (!a.dueDate) return 1
-        if (!b.dueDate) return -1
-        return a.dueDate.localeCompare(b.dueDate)
-      }
-      return b.createdAt - a.createdAt
-    })
+    }),
+    sort
+  )
 
   const emptyMessage =
     todos.length === 0 ? "할 일을 추가해보세요" : "할 일이 없습니다"
