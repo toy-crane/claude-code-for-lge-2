@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import type { Priority } from "@/hooks/use-todos"
 
 type Props = {
-  onAdd: (text: string, priority: Priority) => void
+  onAdd: (text: string, priority: Priority, dueDate?: string) => void
 }
 
 const PRIORITY_CONFIG: Record<Priority, { label: string; style: string }> = {
@@ -20,14 +20,16 @@ const PRIORITY_ORDER: Priority[] = ["high", "normal", "low"]
 export function TodoInput({ onAdd }: Props) {
   const [value, setValue] = useState("")
   const [priority, setPriority] = useState<Priority>("normal")
+  const [dueDate, setDueDate] = useState("")
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.nativeEvent.isComposing) return
     if (e.key !== "Enter") return
     const trimmed = value.trim()
     if (!trimmed) return
-    onAdd(trimmed, priority)
+    onAdd(trimmed, priority, dueDate || undefined)
     setValue("")
+    setDueDate("")
   }
 
   return (
@@ -38,6 +40,13 @@ export function TodoInput({ onAdd }: Props) {
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="할 일을 입력하고 Enter를 누르세요"
+      />
+      <Input
+        type="date"
+        aria-label="마감일"
+        className="w-36"
+        value={dueDate}
+        onChange={(e) => setDueDate(e.target.value)}
       />
       <div className="flex gap-1">
         {PRIORITY_ORDER.map((p) => (
