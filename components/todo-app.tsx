@@ -6,12 +6,14 @@ import { TodoInput } from "@/components/todo-input"
 import { TodoList } from "@/components/todo-list"
 import { TodoFilter, type Filter } from "@/components/todo-filter"
 import { TodoSort, type Sort } from "@/components/todo-sort"
+import { TodoSearch } from "@/components/todo-search"
 
 export function TodoApp() {
   const { todos, isLoaded, addTodo, toggleTodo, deleteTodo, editTodo } =
     useTodos()
   const [filter, setFilter] = useState<Filter>("all")
   const [sort, setSort] = useState<Sort>("createdAt")
+  const [search, setSearch] = useState("")
 
   if (!isLoaded) {
     return (
@@ -23,6 +25,7 @@ export function TodoApp() {
 
   const filteredTodos = todos
     .filter((todo) => {
+      if (search && !todo.text.includes(search)) return false
       if (filter === "active") return !todo.completed
       if (filter === "completed") return todo.completed
       return true
@@ -44,6 +47,7 @@ export function TodoApp() {
   return (
     <div className="flex flex-col gap-4">
       <TodoInput onAdd={addTodo} />
+      <TodoSearch value={search} onChange={setSearch} />
       <div className="flex gap-4">
         <TodoFilter current={filter} onChange={setFilter} />
         <TodoSort current={sort} onChange={setSort} />
