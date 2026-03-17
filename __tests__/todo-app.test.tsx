@@ -3,6 +3,24 @@ import userEvent from "@testing-library/user-event"
 import { describe, expect, it, beforeEach } from "vitest"
 import { TodoApp } from "@/components/todo-app"
 
+async function addTodo(user: ReturnType<typeof userEvent.setup>, text: string) {
+  const input = screen.getByPlaceholderText(/할 일/i)
+  await user.type(input, text)
+  await user.keyboard("{Enter}")
+}
+
+async function addTodosAndToggle(user: ReturnType<typeof userEvent.setup>) {
+  await addTodo(user, "할 일 1")
+  await addTodo(user, "할 일 2")
+  await addTodo(user, "할 일 3")
+  await addTodo(user, "할 일 4")
+  await addTodo(user, "할 일 5")
+
+  const checkboxes = screen.getAllByRole("checkbox")
+  await user.click(checkboxes[0])
+  await user.click(checkboxes[1])
+}
+
 describe("TodoApp", () => {
   beforeEach(() => {
     localStorage.clear()
@@ -23,5 +41,98 @@ describe("TodoApp", () => {
     render(<TodoApp />)
 
     expect(screen.getByText("할 일을 추가해보세요")).toBeInTheDocument()
+  })
+
+  describe("필터링", () => {
+    it("'전체' 필터 선택 시 5개 모두 표시", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      await addTodosAndToggle(user)
+      await user.click(screen.getByRole("button", { name: "전체" }))
+
+      const checkboxes = screen.getAllByRole("checkbox")
+      expect(checkboxes).toHaveLength(5)
+    })
+
+    it("'진행중' 필터 선택 시 미완료 3개만 표시", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      await addTodosAndToggle(user)
+      await user.click(screen.getByRole("button", { name: "진행중" }))
+
+      const checkboxes = screen.getAllByRole("checkbox")
+      expect(checkboxes).toHaveLength(3)
+      checkboxes.forEach((checkbox) => {
+        expect(checkbox).not.toBeChecked()
+      })
+    })
+
+    it("'완료' 필터 선택 시 완료 2개만 표시", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      await addTodosAndToggle(user)
+      await user.click(screen.getByRole("button", { name: "완료" }))
+
+      const checkboxes = screen.getAllByRole("checkbox")
+      expect(checkboxes).toHaveLength(2)
+      checkboxes.forEach((checkbox) => {
+        expect(checkbox).toBeChecked()
+      })
+    })
+
+    it("Todo 0개에서 '진행중' 선택 시 빈 상태 메시지", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      // 전체 할 일이 0개이면 기본 메시지
+      await user.click(screen.getByRole("button", { name: "진행중" }))
+      expect(screen.getByText("할 일을 추가해보세요")).toBeInTheDocument()
+
+      // 할 일이 있지만 필터 결과가 0개이면 필터 메시지
+      await user.click(screen.getByRole("button", { name: "전체" }))
+      await addTodo(user, "할 일 1")
+      const checkbox = screen.getByRole("checkbox")
+      await user.click(checkbox)
+      await user.click(screen.getByRole("button", { name: "진행중" }))
+      expect(screen.getByText("할 일이 없습니다")).toBeInTheDocument()
+    })
+
+    it("'완료' 필터 중 미완료로 변경 시 목록에서 사라짐", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      await addTodosAndToggle(user)
+      await user.click(screen.getByRole("button", { name: "완료" }))
+
+      let checkboxes = screen.getAllByRole("checkbox")
+      expect(checkboxes).toHaveLength(2)
+
+      await user.click(checkboxes[0])
+
+      checkboxes = screen.getAllByRole("checkbox")
+      expect(checkboxes).toHaveLength(1)
+    })
+
+    it("현재 필터 버튼에 active 스타일 적용", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      const allButton = screen.getByRole("button", { name: "전체" })
+      const activeButton = screen.getByRole("button", { name: "진행중" })
+      const completedButton = screen.getByRole("button", { name: "완료" })
+
+      expect(allButton).toHaveAttribute("data-variant", "default")
+      expect(activeButton).toHaveAttribute("data-variant", "outline")
+      expect(completedButton).toHaveAttribute("data-variant", "outline")
+
+      await user.click(activeButton)
+
+      expect(allButton).toHaveAttribute("data-variant", "outline")
+      expect(activeButton).toHaveAttribute("data-variant", "default")
+      expect(completedButton).toHaveAttribute("data-variant", "outline")
+    })
   })
 })
