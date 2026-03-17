@@ -163,6 +163,42 @@ describe("TodoApp", () => {
     })
   })
 
+  describe("검색", () => {
+    it("'회의' 검색 시 '회의' 포함 항목만 표시", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      await addTodo(user, "팀 회의 준비")
+      await addTodo(user, "점심 식사")
+      await addTodo(user, "회의록 작성")
+
+      const searchInput = screen.getByPlaceholderText("검색")
+      await user.type(searchInput, "회의")
+
+      expect(screen.getByText("팀 회의 준비")).toBeInTheDocument()
+      expect(screen.getByText("회의록 작성")).toBeInTheDocument()
+      expect(screen.queryByText("점심 식사")).not.toBeInTheDocument()
+    })
+
+    it("검색어 지우면 전체 목록 복원", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      await addTodo(user, "팀 회의 준비")
+      await addTodo(user, "점심 식사")
+
+      const searchInput = screen.getByPlaceholderText("검색")
+      await user.type(searchInput, "회의")
+
+      expect(screen.queryByText("점심 식사")).not.toBeInTheDocument()
+
+      await user.clear(searchInput)
+
+      expect(screen.getByText("팀 회의 준비")).toBeInTheDocument()
+      expect(screen.getByText("점심 식사")).toBeInTheDocument()
+    })
+  })
+
   describe("필터링", () => {
     it("'전체' 필터 선택 시 5개 모두 표시", async () => {
       const user = userEvent.setup()
