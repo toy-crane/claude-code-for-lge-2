@@ -7,6 +7,7 @@ import { TodoList } from "@/components/todo-list"
 import { TodoFilter, type Filter } from "@/components/todo-filter"
 import { TodoSort, type Sort } from "@/components/todo-sort"
 import { TodoSearch } from "@/components/todo-search"
+import { TodoCategoryFilter, type CategoryFilter } from "@/components/todo-category-filter"
 
 export function TodoApp() {
   const { todos, isLoaded, addTodo, toggleTodo, deleteTodo, editTodo } =
@@ -14,6 +15,7 @@ export function TodoApp() {
   const [filter, setFilter] = useState<Filter>("all")
   const [sort, setSort] = useState<Sort>("createdAt")
   const [search, setSearch] = useState("")
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all")
 
   if (!isLoaded) {
     return (
@@ -26,6 +28,7 @@ export function TodoApp() {
   const filteredTodos = todos
     .filter((todo) => {
       if (search && !todo.text.includes(search)) return false
+      if (categoryFilter !== "all" && todo.category !== categoryFilter) return false
       if (filter === "active") return !todo.completed
       if (filter === "completed") return todo.completed
       return true
@@ -52,6 +55,7 @@ export function TodoApp() {
         <TodoFilter current={filter} onChange={setFilter} />
         <TodoSort current={sort} onChange={setSort} />
       </div>
+      <TodoCategoryFilter current={categoryFilter} onChange={setCategoryFilter} />
       <TodoList
         todos={filteredTodos}
         emptyMessage={emptyMessage}

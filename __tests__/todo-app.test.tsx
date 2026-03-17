@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, beforeEach } from "vitest"
 import { TodoApp } from "@/components/todo-app"
@@ -204,22 +204,77 @@ describe("TodoApp", () => {
       const user = userEvent.setup()
       render(<TodoApp />)
 
-      await user.click(screen.getByRole("button", { name: "업무" }))
+      // 입력 영역이 아닌 카테고리 필터 영역에서도 "업무"가 있으므로 첫 번째(입력) 버튼 클릭
+      const buttons = screen.getAllByRole("button", { name: "업무" })
+      await user.click(buttons[0])
       await addTodo(user, "보고서 작성")
 
       expect(screen.getByText("보고서 작성")).toBeInTheDocument()
-      const badges = screen.getAllByText("업무")
-      expect(badges.length).toBeGreaterThanOrEqual(2)
+      // 입력 버튼 + 카테고리 필터 버튼 + 배지 = 3개
+      const allTexts = screen.getAllByText("업무")
+      expect(allTexts.length).toBeGreaterThanOrEqual(3)
+    })
+  })
+
+  describe("카테고리별 필터", () => {
+    function getCategoryFilterButton(name: string) {
+      const container = screen.getByTestId("category-filter")
+      return within(container).getByRole("button", { name })
+    }
+
+    it("'업무' 필터 선택 시 업무 항목만 표시", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      // 입력 영역의 카테고리 버튼 (첫 번째)
+      const inputButtons = screen.getAllByRole("button", { name: "업무" })
+      await user.click(inputButtons[0])
+      await addTodo(user, "보고서 작성")
+
+      const personalButtons = screen.getAllByRole("button", { name: "개인" })
+      await user.click(personalButtons[0])
+      await addTodo(user, "운동하기")
+
+      await user.click(getCategoryFilterButton("업무"))
+
+      expect(screen.getByText("보고서 작성")).toBeInTheDocument()
+      expect(screen.queryByText("운동하기")).not.toBeInTheDocument()
+    })
+
+    it("'전체' 선택 시 전체 목록 표시", async () => {
+      const user = userEvent.setup()
+      render(<TodoApp />)
+
+      const inputButtons = screen.getAllByRole("button", { name: "업무" })
+      await user.click(inputButtons[0])
+      await addTodo(user, "보고서 작성")
+
+      const personalButtons = screen.getAllByRole("button", { name: "개인" })
+      await user.click(personalButtons[0])
+      await addTodo(user, "운동하기")
+
+      await user.click(getCategoryFilterButton("업무"))
+      expect(screen.queryByText("운동하기")).not.toBeInTheDocument()
+
+      await user.click(getCategoryFilterButton("전체"))
+
+      expect(screen.getByText("보고서 작성")).toBeInTheDocument()
+      expect(screen.getByText("운동하기")).toBeInTheDocument()
     })
   })
 
   describe("필터링", () => {
+    function getStatusFilterButton(name: string) {
+      const container = screen.getByTestId("status-filter")
+      return within(container).getByRole("button", { name })
+    }
+
     it("'전체' 필터 선택 시 5개 모두 표시", async () => {
       const user = userEvent.setup()
       render(<TodoApp />)
 
       await addTodosAndToggle(user)
-      await user.click(screen.getByRole("button", { name: "전체" }))
+      await user.click(getStatusFilterButton("전체"))
 
       const checkboxes = screen.getAllByRole("checkbox")
       expect(checkboxes).toHaveLength(5)
@@ -230,7 +285,7 @@ describe("TodoApp", () => {
       render(<TodoApp />)
 
       await addTodosAndToggle(user)
-      await user.click(screen.getByRole("button", { name: "진행중" }))
+      await user.click(getStatusFilterButton("진행중"))
 
       const checkboxes = screen.getAllByRole("checkbox")
       expect(checkboxes).toHaveLength(3)
@@ -244,7 +299,7 @@ describe("TodoApp", () => {
       render(<TodoApp />)
 
       await addTodosAndToggle(user)
-      await user.click(screen.getByRole("button", { name: "완료" }))
+      await user.click(getStatusFilterButton("완료"))
 
       const checkboxes = screen.getAllByRole("checkbox")
       expect(checkboxes).toHaveLength(2)
@@ -258,15 +313,15 @@ describe("TodoApp", () => {
       render(<TodoApp />)
 
       // 전체 할 일이 0개이면 기본 메시지
-      await user.click(screen.getByRole("button", { name: "진행중" }))
+      await user.click(getStatusFilterButton("진행중"))
       expect(screen.getByText("할 일을 추가해보세요")).toBeInTheDocument()
 
       // 할 일이 있지만 필터 결과가 0개이면 필터 메시지
-      await user.click(screen.getByRole("button", { name: "전체" }))
+      await user.click(getStatusFilterButton("전체"))
       await addTodo(user, "할 일 1")
       const checkbox = screen.getByRole("checkbox")
       await user.click(checkbox)
-      await user.click(screen.getByRole("button", { name: "진행중" }))
+      await user.click(getStatusFilterButton("진행중"))
       expect(screen.getByText("할 일이 없습니다")).toBeInTheDocument()
     })
 
@@ -275,7 +330,7 @@ describe("TodoApp", () => {
       render(<TodoApp />)
 
       await addTodosAndToggle(user)
-      await user.click(screen.getByRole("button", { name: "완료" }))
+      await user.click(getStatusFilterButton("완료"))
 
       let checkboxes = screen.getAllByRole("checkbox")
       expect(checkboxes).toHaveLength(2)
@@ -290,9 +345,9 @@ describe("TodoApp", () => {
       const user = userEvent.setup()
       render(<TodoApp />)
 
-      const allButton = screen.getByRole("button", { name: "전체" })
-      const activeButton = screen.getByRole("button", { name: "진행중" })
-      const completedButton = screen.getByRole("button", { name: "완료" })
+      const allButton = getStatusFilterButton("전체")
+      const activeButton = getStatusFilterButton("진행중")
+      const completedButton = getStatusFilterButton("완료")
 
       expect(allButton).toHaveAttribute("data-variant", "default")
       expect(activeButton).toHaveAttribute("data-variant", "outline")

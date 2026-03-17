@@ -15,7 +15,7 @@ const filters: { value: Filter; label: string }[] = [
 
 export function TodoFilter({ current, onChange }: Props) {
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2" data-testid="status-filter">
       {filters.map(({ value, label }) => (
         <Button
           key={value}
