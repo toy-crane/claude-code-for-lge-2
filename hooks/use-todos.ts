@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react"
 
+export type Priority = "high" | "normal" | "low"
+
 export type Todo = {
   id: string
   text: string
   completed: boolean
+  priority: Priority
   createdAt: number
 }
 
@@ -28,11 +31,12 @@ export function useTodos() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
   }, [todos, isLoaded])
 
-  function addTodo(text: string) {
+  function addTodo(text: string, priority: Priority = "normal") {
     const todo: Todo = {
       id: crypto.randomUUID(),
       text,
       completed: false,
+      priority,
       createdAt: Date.now(),
     }
     setTodos((prev) => [todo, ...prev])
