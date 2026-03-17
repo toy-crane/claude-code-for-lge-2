@@ -5,7 +5,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { IconTrash } from "@tabler/icons-react"
-import type { Todo } from "@/hooks/use-todos"
+import type { Todo, Priority } from "@/hooks/use-todos"
+
+const PRIORITY_BADGE: Record<Priority, { label: string; style: string }> = {
+  high: { label: "높음", style: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300" },
+  normal: { label: "보통", style: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" },
+  low: { label: "낮음", style: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" },
+}
 
 type Props = {
   todo: Todo
@@ -66,6 +72,11 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: Props) {
           {todo.text}
         </span>
       )}
+      <span
+        className={`shrink-0 rounded px-1.5 py-0.5 text-xs ${PRIORITY_BADGE[todo.priority ?? "normal"].style}`}
+      >
+        {PRIORITY_BADGE[todo.priority ?? "normal"].label}
+      </span>
       <Button
         variant="ghost"
         size="icon"
