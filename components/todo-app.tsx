@@ -29,6 +29,12 @@ export function TodoApp() {
     })
     .sort((a, b) => {
       if (sort === "name") return a.text.localeCompare(b.text, "ko")
+      if (sort === "dueDate") {
+        if (!a.dueDate && !b.dueDate) return 0
+        if (!a.dueDate) return 1
+        if (!b.dueDate) return -1
+        return a.dueDate.localeCompare(b.dueDate)
+      }
       return b.createdAt - a.createdAt
     })
 
