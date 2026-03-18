@@ -120,7 +120,7 @@ describe("TodoApp", () => {
 
       const items = screen.getAllByRole("checkbox")
       const texts = items.map((_, i) =>
-        items[i].closest("div")?.querySelector("span.flex-1")?.textContent
+        items[i].closest("div")?.querySelector("div.flex-1 span")?.textContent
       )
       expect(texts).toEqual(["가나다", "다라마", "바사아"])
     })
@@ -137,7 +137,7 @@ describe("TodoApp", () => {
 
       const items = screen.getAllByRole("checkbox")
       const texts = items.map((_, i) =>
-        items[i].closest("div")?.querySelector("span.flex-1")?.textContent
+        items[i].closest("div")?.querySelector("div.flex-1 span")?.textContent
       )
       expect(texts).toEqual(["세 번째", "두 번째", "첫 번째"])
     })
@@ -163,7 +163,7 @@ describe("TodoApp", () => {
 
       const items = screen.getAllByRole("checkbox")
       const texts = items.map((_, i) =>
-        items[i].closest("div")?.querySelector("span.flex-1")?.textContent
+        items[i].closest("div")?.querySelector("div.flex-1 span")?.textContent
       )
       expect(texts).toEqual(["빠른 마감", "중간 마감", "늦은 마감"])
     })
@@ -185,7 +185,7 @@ describe("TodoApp", () => {
 
       const items = screen.getAllByRole("checkbox")
       const texts = items.map((_, i) =>
-        items[i].closest("div")?.querySelector("span.flex-1")?.textContent
+        items[i].closest("div")?.querySelector("div.flex-1 span")?.textContent
       )
       expect(texts).toEqual(["마감일 있음", "마감일 없음"])
     })

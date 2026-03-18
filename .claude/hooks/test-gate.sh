@@ -13,7 +13,7 @@ if [ "$COUNT" -ge 3 ]; then
 fi
 
 # 테스트 실행
-if bun test 2>/tmp/test-gate.err; then
+if bun run test 2>/tmp/test-gate.err; then
   rm -f "$COUNTER_FILE"
   exit 0
 else
