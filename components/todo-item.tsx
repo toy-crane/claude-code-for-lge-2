@@ -49,9 +49,11 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: Props) {
 
   return (
     <div className="flex items-center gap-2 py-1">
+      {/* 체크박스: 완료 상태 토글 */}
       <Checkbox
         checked={todo.completed}
         onCheckedChange={() => onToggle(todo.id)}
+        className="h-5 w-5 rounded-full border-2 border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
       />
       {isEditing ? (
         <Input
