@@ -18,6 +18,9 @@
 # production
 /build
 
+# claude
+.claude/worktrees/
+
 # misc
 .DS_Store
 *.pem
