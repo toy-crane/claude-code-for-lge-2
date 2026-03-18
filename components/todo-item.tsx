@@ -67,14 +67,17 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: Props) {
           autoFocus
         />
       ) : (
-        <span
-          className={`flex-1 cursor-pointer text-sm select-none ${
+        <div
+          className={`flex-1 cursor-pointer select-none ${
             todo.completed ? "line-through opacity-50" : ""
           }`}
           onDoubleClick={startEditing}
         >
-          {todo.text}
-        </span>
+          <span className="text-sm">{todo.text}</span>
+          {todo.description && (
+            <p className="text-xs text-muted-foreground">{todo.description}</p>
+          )}
+        </div>
       )}
       {todo.category && (
         <Badge variant="default" className="shrink-0">

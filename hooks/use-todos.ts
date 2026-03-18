@@ -13,6 +13,7 @@ export type Todo = {
   createdAt: number
   dueDate?: string
   category?: Category
+  description?: string
 }
 
 const STORAGE_KEY = "todos"
@@ -34,7 +35,7 @@ export function useTodos() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
   }, [todos, isLoaded])
 
-  function addTodo(text: string, priority: Priority = "normal", dueDate?: string, category?: Category) {
+  function addTodo(text: string, priority: Priority = "normal", dueDate?: string, category?: Category, description?: string) {
     const todo: Todo = {
       id: crypto.randomUUID(),
       text,
@@ -43,6 +44,7 @@ export function useTodos() {
       createdAt: Date.now(),
       dueDate: dueDate || undefined,
       category: category || undefined,
+      description: description || undefined,
     }
     setTodos((prev) => [todo, ...prev])
   }
