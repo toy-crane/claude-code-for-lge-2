@@ -1,16 +1,18 @@
 "use client"
 
+// 할 일 항목 컴포넌트 (Badge 기반 스타일링)
 import { useState } from "react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import { IconTrash } from "@tabler/icons-react"
 import type { Todo, Priority } from "@/hooks/use-todos"
 
-const PRIORITY_BADGE: Record<Priority, { label: string; style: string }> = {
-  high: { label: "높음", style: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300" },
-  normal: { label: "보통", style: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" },
-  low: { label: "낮음", style: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" },
+const PRIORITY_BADGE: Record<Priority, { label: string; variant: "destructive" | "secondary" | "outline" }> = {
+  high: { label: "높음", variant: "destructive" },
+  normal: { label: "보통", variant: "secondary" },
+  low: { label: "낮음", variant: "outline" },
 }
 
 type Props = {
@@ -75,20 +77,18 @@ export function TodoItem({ todo, onToggle, onDelete, onEdit }: Props) {
         </span>
       )}
       {todo.category && (
-        <span className="shrink-0 rounded bg-purple-100 px-1.5 py-0.5 text-xs text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+        <Badge variant="default" className="shrink-0">
           {todo.category}
-        </span>
+        </Badge>
       )}
       {todo.dueDate && (
         <span className="shrink-0 text-xs text-muted-foreground">
           {todo.dueDate}
         </span>
       )}
-      <span
-        className={`shrink-0 rounded px-1.5 py-0.5 text-xs ${PRIORITY_BADGE[todo.priority ?? "normal"].style}`}
-      >
+      <Badge variant={PRIORITY_BADGE[todo.priority ?? "normal"].variant} className="shrink-0">
         {PRIORITY_BADGE[todo.priority ?? "normal"].label}
-      </span>
+      </Badge>
       <Button
         variant="ghost"
         size="icon"

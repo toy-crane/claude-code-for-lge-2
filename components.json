@@ -21,5 +21,9 @@
   },
   "menuColor": "inverted",
   "menuAccent": "bold",
-  "registries": {}
+  "registries": {
+    "@magicui": "https://magicui.design/r/{name}",
+    "@aceternity": "https://ui.aceternity.com/registry/{name}.json",
+    "@tailark": "https://tailark.com/r/{name}.json"
+  }
 }
