@@ -4,10 +4,8 @@ import { useState } from "react"
 import { useTodos } from "@/hooks/use-todos"
 import { TodoInput } from "@/components/todo-input"
 import { TodoList } from "@/components/todo-list"
-import { TodoFilter, type Filter } from "@/components/todo-filter"
-import { TodoSort, type Sort } from "@/components/todo-sort"
 import { TodoSearch } from "@/components/todo-search"
-import { TodoCategoryFilter, type CategoryFilter } from "@/components/todo-category-filter"
+import { TodoFilterDropdown, type Filter, type CategoryFilter, type Sort } from "@/components/todo-filter-dropdown"
 import { sortTodos } from "@/lib/todo-store"
 
 export function TodoApp() {
@@ -42,13 +40,21 @@ export function TodoApp() {
 
   return (
     <div className="flex flex-col gap-4">
-      <TodoInput onAdd={addTodo} />
-      <TodoSearch value={search} onChange={setSearch} />
-      <div className="flex gap-4">
-        <TodoFilter current={filter} onChange={setFilter} />
-        <TodoSort current={sort} onChange={setSort} />
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Todo</h1>
+        <TodoInput onAdd={addTodo} />
       </div>
-      <TodoCategoryFilter current={categoryFilter} onChange={setCategoryFilter} />
+      <div className="flex gap-2">
+        <TodoSearch value={search} onChange={setSearch} />
+        <TodoFilterDropdown
+          filter={filter}
+          onFilterChange={setFilter}
+          categoryFilter={categoryFilter}
+          onCategoryFilterChange={setCategoryFilter}
+          sort={sort}
+          onSortChange={setSort}
+        />
+      </div>
       <TodoList
         todos={filteredTodos}
         emptyMessage={emptyMessage}
