@@ -1,6 +1,6 @@
-import { render, screen, cleanup } from "@testing-library/react"
+import { render, screen, cleanup, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { describe, it, expect, beforeEach } from "vitest"
+import { describe, it, expect, beforeEach, vi } from "vitest"
 import { TodoApp } from "@/components/todo-app"
 
 // 다이얼로그를 열고 할 일을 입력하는 헬퍼
@@ -143,6 +143,59 @@ describe("TodoApp", () => {
 
     expect(screen.getByText("읽을거리")).toBeInTheDocument()
     expect(screen.getByText("흥미로운 글 요약")).toBeInTheDocument()
+  })
+
+  it("URL 입력 후 추가 → 메타데이터가 description으로 표시", async () => {
+    // fetch mock: API 응답
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ title: "Example Domain", description: "테스트 설명" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })
+    )
+
+    const user = userEvent.setup()
+    render(<TodoApp />)
+
+    await user.click(screen.getByRole("button", { name: "할 일 추가" }))
+    await user.type(screen.getByLabelText("할 일"), "읽기")
+    await user.type(screen.getByLabelText("URL"), "https://example.com")
+    await user.click(screen.getByRole("button", { name: "메타데이터 가져오기" }))
+
+    // 메타데이터 로드 후 다이얼로그 안에 표시 확인
+    await waitFor(() => {
+      expect(screen.getByText("Example Domain - 테스트 설명")).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole("button", { name: "추가" }))
+
+    // 목록에 description이 표시됨
+    expect(screen.getByText("읽기")).toBeInTheDocument()
+    expect(screen.getByText("Example Domain - 테스트 설명")).toBeInTheDocument()
+
+    vi.restoreAllMocks()
+  })
+
+  it("URL 메타데이터 가져오기 실패 시 에러 메시지 표시", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "메타데이터를 가져올 수 없습니다" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      })
+    )
+
+    const user = userEvent.setup()
+    render(<TodoApp />)
+
+    await user.click(screen.getByRole("button", { name: "할 일 추가" }))
+    await user.type(screen.getByLabelText("URL"), "https://invalid-url.com")
+    await user.click(screen.getByRole("button", { name: "메타데이터 가져오기" }))
+
+    await waitFor(() => {
+      expect(screen.getByText("메타데이터를 가져올 수 없습니다")).toBeInTheDocument()
+    })
+
+    vi.restoreAllMocks()
   })
 
   it("페이지 새로고침 → 기존 목록 유지 (localStorage 영속성)", async () => {
